@@ -6,22 +6,32 @@ import './App.css';
 function App() {
   const [movies, setMovies] = useState([]); //setting the state to have the movie list ready to be stored and then called
   const [isLoading, setIsLoading] = useState(false);
-  //const [error, setError] = useState(null);
+  const [error, setError] = useState(null);
   async function fetchMoviesHandler() { //setting the fetch request
     setIsLoading(true);
-    const response = await fetch('https://swapi.dev/api/films') //url to fetch
-    const data = await response.json(); //data returned in json format
+    setError(null);
+    try {
+      const response = await fetch('https://swapi.dev/api/films') //url to fetch
+      if (!response.ok) {
+        throw new Error('Something Went Wrong')
+      }  
+      const data = await response.json(); //data returned in json format
       const transformedMovies = data.results.map((movieData) => { //mapping through the data (data.results being the actual data ("data" is a place holder))
-        return {
-          id: movieData.episode_id, //how we want the data to be called
-          title: movieData.title, //how we want the data to be called
-          openingText: movieData.opening_crawl, //how we want the data to be called (i.e. opening_crawl will be mapped through as openingText)
-          releaseDate: movieData.release_date //how we want the data to be called
-        }
-      });
-      setMovies(transformedMovies); //set the state (data returned) in the app
-    // note the movies props in MovieList component is the state and we're using it as a prop here, so the state of the movies can be called and used as props, 
-    //in this case movies are the url of json info*//> 
+          return {
+            id: movieData.episode_id, //how we want the data to be called
+            title: movieData.title, //how we want the data to be called
+            openingText: movieData.opening_crawl, //how we want the data to be called (i.e. opening_crawl will be mapped through as openingText)
+            releaseDate: movieData.release_date //how we want the data to be called
+          }
+        });
+        setMovies(transformedMovies); //set the state (data returned) in the app
+      // note the movies props in MovieList component is the state and we're using it as a prop here, so the state of the movies can be called and used as props, 
+      //in this case movies are the url of json info*//> 
+      setIsLoading(false)
+    }
+       catch (error) {
+      setError(error.message);
+    }
     setIsLoading(false)
   }
 
@@ -32,8 +42,9 @@ function App() {
       </section>
       <section>
         {!isLoading && movies.length > 0 && <MoviesList movies={movies} />}
-        {!isLoading && movies.length === 0 && <p>No Movies Found</p>}
+        {!isLoading && movies.length === 0 && !error && <p>No Movies Found</p>}
         {isLoading && <p>Loading...</p>}
+        {!isLoading && error && <p>{error}</p>}
       </section>
     </React.Fragment>
   );
