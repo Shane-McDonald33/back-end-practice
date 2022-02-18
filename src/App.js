@@ -5,6 +5,7 @@ import './App.css';
 
 function App() {
   const [movies, setMovies] = useState([]); //setting the state to have the movie list ready to be stored and then called
+  const [isLoading, setIsLoading] = useState(false)
   function fetchMoviesHandler() { //setting the fetch request
     fetch('https://swapi.dev/api/films') //url to fetch
     .then(response => { //the response promise
@@ -30,7 +31,9 @@ function App() {
         <button onClick={fetchMoviesHandler}>Fetch Movies</button>
       </section>
       <section>
-        <MoviesList movies={movies} />
+        {!isLoading && movies.length > 0 && <MoviesList movies={movies} />}
+        {!isLoading && movies.length === 0 && <p>No Movies Found</p>}
+        {isLoading && <p>Loading...</p>}
       </section>
     </React.Fragment>
   );
